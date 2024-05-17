@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import runChat from "../../../backend/config/gemini";
-import { UserContext } from "./UserContext"; // Import UserContext
+import { UserContext } from "./UserContext";
 
 export const Context = createContext();
 
@@ -67,7 +67,7 @@ const ContextProvider = (props) => {
     let hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, "0");
     const amPM = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+    hours = hours % 12 || 12;
     return `${hours}:${minutes} ${amPM}`;
   };
 
@@ -85,7 +85,7 @@ const ContextProvider = (props) => {
       { question: userInput, response: null, time: formattedTime },
     ]);
     setRecentPrompt(userInput);
-    setInput(""); // Clear the input field
+    setInput("");
 
     setLoading(true);
     setShowResult(true);
@@ -135,8 +135,8 @@ const ContextProvider = (props) => {
     input,
     setInput,
     newChat,
-    setCurrentSession, // Ensure setCurrentSession is included
-    deleteChatHistory, // Add deleteChatHistory to context
+    setCurrentSession,
+    deleteChatHistory,
   };
 
   return (

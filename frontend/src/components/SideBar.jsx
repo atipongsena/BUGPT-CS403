@@ -4,23 +4,41 @@ import { Link } from "react-router-dom";
 import { CiCirclePlus, CiSettings, CiTrash } from "react-icons/ci";
 import { IoIosLogOut } from "react-icons/io";
 import { Context } from "../context/Context";
-import { UserContext } from "../context/UserContext"; 
-import Modal from 'react-modal';  // Import Modal from react-modal
+import { UserContext } from "../context/UserContext";
+import Modal from 'react-modal';
 
 const Sidebar = () => {
   const { newChat, chathistory, setCurrentSession, setShowResult, deleteChatHistory } = useContext(Context);
-  const { user, setUser } = useContext(UserContext); // Get user from context
+  const { user, setUser } = useContext(UserContext);
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [deleteConfirmIsOpen, setDeleteConfirmIsOpen] = useState(false);
+  const [chatIndexToDelete, setChatIndexToDelete] = useState(null);
+  
   const [formData, setFormData] = useState({
     fullName: user.fullName,
     email: user.email,
     password: '',
-    confirmPassword: '', // Add confirm password field
+    confirmPassword: '',
   });
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => setModalIsOpen(false);
+
+  const openDeleteConfirm = (index) => {
+    setChatIndexToDelete(index);
+    setDeleteConfirmIsOpen(true);
+  };
+
+  const closeDeleteConfirm = () => {
+    setChatIndexToDelete(null);
+    setDeleteConfirmIsOpen(false);
+  };
+
+  const confirmDelete = () => {
+    deleteChatHistory(chatIndexToDelete);
+    closeDeleteConfirm();
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,7 +65,7 @@ const Sidebar = () => {
       });
       if (response.ok) {
         const updatedUser = await response.json();
-        setUser(updatedUser); // Update user in context
+        setUser(updatedUser);
         closeModal();
       } else {
         console.error('Failed to update user');
@@ -67,7 +85,7 @@ const Sidebar = () => {
     let hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, "0");
     const amPM = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+    hours = hours % 12 || 12;
     return `${hours}:${minutes} ${amPM}`;
   };
 
@@ -94,7 +112,7 @@ const Sidebar = () => {
                 >
                   <div className="flex-grow">{firstQuestion.slice(0, 24)} ...</div>
                   <div className="text-xs text-gray-500">{sessionTime}</div>
-                  <button onClick={() => deleteChatHistory(index)} className="ml-2">
+                  <button onClick={() => openDeleteConfirm(index)} className="ml-2">
                     <CiTrash className="w-5 h-5 text-red-500" />
                   </button>
                 </div>
@@ -189,6 +207,22 @@ const Sidebar = () => {
               <button type="submit" className="py-2 px-4 bg-blue-500 text-white rounded-md">Save</button>
             </div>
           </form>
+        </div>
+      </Modal>
+      <Modal
+        isOpen={deleteConfirmIsOpen}
+        onRequestClose={closeDeleteConfirm}
+        contentLabel="Confirm Delete"
+        className="fixed inset-0 flex items-center justify-center"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+      >
+        <div className="bg-white rounded-lg p-8 w-[300px] shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+          <p>คุณแน่ใจนะ ว่าต้องการลบประวัติการสนทนานี้?</p>
+          <div className="flex justify-end space-x-4 mt-4">
+            <button onClick={closeDeleteConfirm} className="py-2 px-4 bg-gray-500 text-white rounded-md">Cancel</button>
+            <button onClick={confirmDelete} className="py-2 px-4 bg-red-500 text-white rounded-md">Delete</button>
+          </div>
         </div>
       </Modal>
     </div>
